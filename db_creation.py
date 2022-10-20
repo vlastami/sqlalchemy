@@ -1,14 +1,10 @@
-# založení nové db-schema
-
-from sqlalchemy import create_engine, Table, Column, Integer, DECIMAL, String, DateTime, MetaData, ForeignKey
-#metadata = MetaData()
+from sqlalchemy import  Table, Column, Integer, DECIMAL, String, ForeignKey
 
 def create_db(engine, metadata):
     tab_markets = Table(
         "markets",
         metadata,
         Column("market_id", Integer, primary_key=True),
-
         Column("full_name", String(128)),
         Column("location", String(32), nullable=False)
     )
@@ -30,14 +26,14 @@ def create_db(engine, metadata):
         Column("symbol_id", Integer, primary_key=True),
         Column("full_name", String(32), nullable=False),
         Column("dollar_value", DECIMAL(10,2)),
-        Column("market_id", Integer)
+        Column("market_id", ForeignKey("tab_markets.market_id"))
     )
     tab_investor_symbol = Table(
         "investor_symbol",
         metadata,
         Column("id", Integer, primary_key=True),
-        Column("investor_id", Integer, nullable=False),
-        Column("symbol_id", String(32),nullable=False),
+        Column("investor_id", ForeignKey("tab_investors.investor_id"), nullable=False),
+        Column("symbol_id", ForeignKey("tab_symbols.symbol_id"),nullable=False),
         Column("share_amount", Integer)
     )
     tab_exchange_rates = Table(
@@ -50,4 +46,5 @@ def create_db(engine, metadata):
 
     with engine.begin() as conn:
         metadata.create_all(conn)
+        conn.commit()
 
